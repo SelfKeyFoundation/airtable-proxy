@@ -49,6 +49,7 @@ jobs:
             GOOGLE_PROJECT_ID: messaging-service-180514
             GOOGLE_COMPUTE_ZONE: us-central1-a
       steps:
+        - checkout
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run:
