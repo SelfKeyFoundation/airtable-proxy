@@ -63,7 +63,7 @@ jobs:
         - deploy:
             command: |
               cd dist
-              gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey, baseId=$baseId --trigger-http --timeout 540s
+              gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey,baseId=$baseId --trigger-http --timeout 540s
 workflows:
   version: 2
   workflow1:
