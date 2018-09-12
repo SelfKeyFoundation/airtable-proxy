@@ -1,4 +1,24 @@
 version: 2
+aliases:
+    - &cache_version '1'
+    - &step_prepare_cache_buster
+      run:
+          name: Prepare Cache Buster
+          command: echo ${CACHE_VERSION} > /tmp/cache_buster
+    - &step_restore_cache
+      restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
+              - dist-{{ .Revision }}
+    - &step_save_cache
+      save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+              - node_modules/
 
 jobs:
     setup_yarn_deps:
@@ -6,29 +26,17 @@ jobs:
         - image: circleci/node:7.10
       steps:
         - checkout
-        - restore_cache:
-            name: Restore Yarn Package Cache
-            keys:
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
+        - *step_prepare_cache_buster
+        - *step_restore_cache
         - run: yarn install
-        - save_cache:
-            name: Save Yarn Package Cache
-            key: yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            paths:
-                - node_modules/
+        - *step_save_cache
     build:
       docker:
         - image: circleci/node:7.10
       steps:
         - checkout
-        - restore_cache:
-            name: Restore Yarn Package Cache
-            keys:
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
+        - *step_prepare_cache_buster
+        - *step_restore_cache
         - run: yarn build
         - save_cache:
             key: dist-{{ .Revision }}
@@ -41,12 +49,8 @@ jobs:
             GOOGLE_PROJECT_ID: messaging-service-180514
             GOOGLE_COMPUTE_ZONE: us-central1-a
       steps:
-        - restore_cache:
-            keys:
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
-                - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
-                - dist-{{ .Revision }}
+        - *step_prepare_cache_buster
+        - *step_restore_cache
         - run:
             name: Setup gcloud
             command: |
