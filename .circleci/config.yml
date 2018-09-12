@@ -42,6 +42,10 @@ jobs:
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run: yarn build
+        - persist_to_workspace:
+            root: .
+            paths:
+                - dist
     deploy_to_gcf:
       docker:
         - image: google/cloud-sdk
