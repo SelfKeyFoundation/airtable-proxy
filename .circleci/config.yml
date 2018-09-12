@@ -26,6 +26,8 @@ jobs:
         - image: circleci/node:7.10
       steps:
         - checkout
+        - attach_workspace:
+            at: .
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run: yarn install
@@ -35,18 +37,18 @@ jobs:
         - image: circleci/node:7.10
       steps:
         - checkout
+        - attach_workspace:
+            at: .
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run: yarn build
-        - save_cache:
-            key: dist-{{ .Revision }}
-            paths:
-              - ./dist
     deploy_to_gcf:
       docker:
         - image: google/cloud-sdk
       steps:
         - checkout
+        - attach_workspace:
+            at: .
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run:
@@ -56,7 +58,7 @@ jobs:
               gcloud auth activate-service-account --key-file client-secret.json
         - deploy:
             command: |
-              cd /home/circleci/project/dist
+              cd dist
               gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey, baseId=$baseId --trigger-http --timeout 540s
 workflows:
   version: 2
