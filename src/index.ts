@@ -7,7 +7,7 @@ const base = new Airtable({apiKey: process.env.apiKey}).base(process.env.baseId)
 
 export function airtable(req: Request, res: Response) {
   // Set CORS headers
-  cors({maxAge: 3600})(req, res, handleRequest);
+  cors({maxAge: 3600})(req, res, () => { handleRequest(req, res) });
 }
 
 const handleRequest = (req: Request, res: Response) => {
