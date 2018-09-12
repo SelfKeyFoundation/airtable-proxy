@@ -18,7 +18,7 @@ export function airtable(req: Request, res: Response) {
   const tableName = req.query.tableName;
 
   if (!tableName) {
-    res.status(400).send('Missing Table Name Query Parameter');
+    res.status(400).send({'Error:': 'Missing Table Name Query Parameter'});
   }
 
   let records:Array<any> = [];
@@ -28,7 +28,7 @@ export function airtable(req: Request, res: Response) {
     fetchNextPage();
 
   }, (err: Error) => {
-      if (err) { console.error(err); return; }
+      if (err) { res.status(500).send({'Error:': err}); return; }
       // change json to be retrieved 
 
       let entities:Array<any> = [];  
@@ -38,6 +38,6 @@ export function airtable(req: Request, res: Response) {
         }
       });
 
-      res.status(200).send({entities});
+      res.json({entities});
   });
 };
