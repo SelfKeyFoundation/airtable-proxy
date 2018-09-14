@@ -2,7 +2,7 @@
   "name": "airtable-proxy",
   "version": "0.0.1",
   "description": "An airtable proxy",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"No test specified\" && exit 0",
     "build": "tsc"
