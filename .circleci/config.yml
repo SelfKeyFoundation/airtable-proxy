@@ -78,3 +78,7 @@ workflows:
           requires:
             - setup_yarn_deps
             - build
+          filters:
+            branches:
+                only:
+                    - master
