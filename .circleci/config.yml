@@ -1,0 +1,80 @@
+version: 2
+aliases:
+    - &cache_version '1'
+    - &step_prepare_cache_buster
+      run:
+          name: Prepare Cache Buster
+          command: echo ${CACHE_VERSION} > /tmp/cache_buster
+    - &step_restore_cache
+      restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}}-master
+              - yarn-packages-{{ checksum "/tmp/cache_buster" }}-
+              - dist-{{ .Revision }}
+    - &step_save_cache
+      save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "/tmp/cache_buster" }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+              - node_modules/
+
+jobs:
+    setup_yarn_deps:
+      docker:
+        - image: circleci/node:7.10
+      steps:
+        - checkout
+        - attach_workspace:
+            at: .
+        - *step_prepare_cache_buster
+        - *step_restore_cache
+        - run: yarn install
+        - *step_save_cache
+    build:
+      docker:
+        - image: circleci/node:7.10
+      steps:
+        - checkout
+        - attach_workspace:
+            at: .
+        - *step_prepare_cache_buster
+        - *step_restore_cache
+        - run: yarn build
+        - persist_to_workspace:
+            root: .
+            paths:
+                - dist
+    deploy_to_gcf:
+      docker:
+        - image: google/cloud-sdk
+      steps:
+        - checkout
+        - attach_workspace:
+            at: .
+        - *step_prepare_cache_buster
+        - *step_restore_cache
+        - run:
+            name: Setup gcloud
+            command: |
+              openssl aes-256-cbc -K $encrypted_40ef2f4394e3_key -iv $encrypted_40ef2f4394e3_iv -in client-secret.json.enc -out client-secret.json -d
+              gcloud auth activate-service-account --key-file client-secret.json
+              gcloud config set project $GOOGLE_PROJECT_ID
+        - deploy:
+            command: |
+              cp package.json dist
+              cd dist
+              gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey,baseId=$baseId --trigger-http --timeout 540s
+workflows:
+  version: 2
+  workflow1:
+    jobs:
+      - setup_yarn_deps
+      - build:
+          requires:
+            - setup_yarn_deps
+      - deploy_to_gcf:
+          requires:
+            - setup_yarn_deps
+            - build
