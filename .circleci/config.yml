@@ -63,6 +63,7 @@ jobs:
               gcloud config set project $GOOGLE_PROJECT_ID
         - deploy:
             command: |
+              cp package.json dist
               cd dist
               gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey,baseId=$baseId --trigger-http --timeout 540s
 workflows:
