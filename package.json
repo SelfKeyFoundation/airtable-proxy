@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/SelfKeyFoundation/airtable-proxy#readme",
   "dependencies": {
-    "airtable": "^0.5.6",
+    "airtable": "^0.7.2",
     "cors": "^2.8.4"
   },
   "devDependencies": {
