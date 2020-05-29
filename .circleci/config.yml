@@ -23,7 +23,7 @@ aliases:
 jobs:
     setup_yarn_deps:
       docker:
-        - image: circleci/node:7.10
+        - image: circleci/node:10.13.0
       steps:
         - checkout
         - attach_workspace:
@@ -34,7 +34,7 @@ jobs:
         - *step_save_cache
     build:
       docker:
-        - image: circleci/node:7.10
+        - image: circleci/node:10.13.0
       steps:
         - checkout
         - attach_workspace:
@@ -48,7 +48,7 @@ jobs:
                 - dist
     deploy_to_gcf:
       docker:
-        - image: google/cloud-sdk
+        - image: google/cloud-sdk:294.0.0
       steps:
         - checkout
         - attach_workspace:
@@ -65,7 +65,7 @@ jobs:
             command: |
               cp package.json dist
               cd dist
-              gcloud beta functions deploy airtable --set-env-vars apiKey=$apiKey,baseId=$baseId --trigger-http --timeout 540s
+              gcloud functions deploy airtable --set-env-vars apiKey=$apiKey,baseId=$baseId --trigger-http --timeout 540s --runtime nodejs10
 workflows:
   version: 2
   workflow1:
