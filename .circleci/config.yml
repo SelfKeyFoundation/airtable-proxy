@@ -56,11 +56,12 @@ jobs:
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run:
-          name: Authorize GCloud Command Line Tool
-          command: |
-            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
-            gcloud config set project $GCLOUD_PROJECT_ID
-        - deploy:
+            name: Authorize GCloud Command Line Tool
+            command: |
+              echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
+              gcloud config set project $GCLOUD_PROJECT_ID
+        - run:
+            name: Deploy
             command: |
               cp package.json dist
               cd dist
