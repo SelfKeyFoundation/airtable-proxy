@@ -56,11 +56,13 @@ jobs:
         - *step_prepare_cache_buster
         - *step_restore_cache
         - run:
-            name: Setup gcloud
+          name: Authorize GCloud Command Line Tool
+          command: |
+            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
+        - run:
+            name: Deploy To Google Cloud Functions
             command: |
-              openssl aes-256-cbc -K $encrypted_40ef2f4394e3_key -iv $encrypted_40ef2f4394e3_iv -in client-secret.json.enc -out client-secret.json -d
-              gcloud auth activate-service-account --key-file client-secret.json
-              gcloud config set project $GOOGLE_PROJECT_ID
+              gcloud config set project $GCLOUD_PROJECT_ID
         - deploy:
             command: |
               cp package.json dist
