@@ -19,7 +19,7 @@
   "homepage": "https://github.com/SelfKeyFoundation/airtable-proxy#readme",
   "dependencies": {
     "airtable": "0.9.0",
-    "cors": "2.8.5 "
+    "cors": "2.8.5"
   },
   "engines": {
     "node": "10.x"
